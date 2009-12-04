@@ -2,7 +2,9 @@
 //		
 //	The MIT License
 //
-//	Copyright (c) 2009 Oscar Valdez
+//	Copyright (c) 2009 
+//	Oscar Valdez <ozipi.nomad@gmail.com>
+//	Thibault Imbert <thibault@bytearray.org>
 //
 //	Permission is hereby granted, free of charge, to any person obtaining a copy
 //	of this software and associated documentation files (the "Software"), to deal

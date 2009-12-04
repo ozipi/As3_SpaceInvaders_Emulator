@@ -2,7 +2,9 @@
 //		
 //	The MIT License
 //
-//	Copyright (c) 2009 Oscar Valdez
+//	Copyright (c) 2009 
+//	Oscar Valdez <ozipi.nomad@gmail.com>
+//	Thibault Imbert <thibault@bytearray.org>
 //
 //	Permission is hereby granted, free of charge, to any person obtaining a copy
 //	of this software and associated documentation files (the "Software"), to deal
@@ -100,6 +102,10 @@ package
 			cpu.setInput( input );
 			input.init();
 			
+			//e
+			this.width = 224;
+			this.height = 256;
+			
 			// Refresh cpu & screen timer 
 			refreshTimer.addEventListener(TimerEvent.TIMER, run);
 			refreshTimer.start();
@@ -123,6 +129,7 @@ package
 			cpu.Run();
 			cpu.Run();
 			videoOutput.render(); 
+			trace("wh:" + width + ":" + height);
 		}
 		
 		/**
