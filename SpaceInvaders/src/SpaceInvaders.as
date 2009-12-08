@@ -28,18 +28,16 @@
 package
 {
 	import com.ozipi.cpu.SpaceInvadersCpu;
+	import com.ozipi.custom.PausedImage;
 	import com.ozipi.input.Input;
 	import com.ozipi.screen.SpaceInvadersVideo;
-	import com.ozipi.screen.skins.Classic;
+	import com.ozipi.screen.skins.PaperSkin;
 	
-	import flash.display.Bitmap;
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
 	import flash.events.KeyboardEvent;
 	import flash.events.TimerEvent;
-	import flash.text.TextField;
-	import flash.text.TextFieldAutoSize;
 	import flash.ui.Keyboard;
 	import flash.utils.Timer;
 	
@@ -59,8 +57,9 @@ package
 		private var cpu:SpaceInvadersCpu;
 		private var input:Input;
 		private var videoOutput:SpaceInvadersVideo;
-		private var videoClassic:Classic;
-		private var paused:Boolean;
+		private var videoClassic:PaperSkin;
+		private var pausedState:Boolean;
+		private var pausedScreen:PausedImage;
 		
 		private var refreshTimer:Timer = new Timer(16,0);
 		
@@ -86,32 +85,32 @@ package
 			// Defines a new input handler
 			addChild ( input = new Input() );
 			
-			// Creates a skin with a specific color
-			videoClassic = new Classic(0xF6EC50);
+			// Creates the classic skin (using bitmapData)
+			//videoClassic = new ClassicSkin();
+			// Creates the SimpleSkin (using sprite)
+			//videoClassic = new SimpleSkin();
+			// Creates the PaperSkin (adds a background)
+			videoClassic = new PaperSkin();
 
-			// Createsa new video output
+			// Creates a new video output
 			videoOutput = new SpaceInvadersVideo(cpu, videoClassic);
 			addChild (videoClassic);
 
-			// Takes the current position and adds the height beause of the negative orientation
-			videoClassic.y += videoClassic.height;
-			
 			// Cpu & video initializers
 			cpu.initRegisters();
 			cpu.initRom();
 			cpu.setInput( input );
 			input.init();
 			
-			//e
-			this.width = 224;
-			this.height = 256;
-			
 			// Refresh cpu & screen timer 
 			refreshTimer.addEventListener(TimerEvent.TIMER, run);
 			refreshTimer.start();
-			
+			pausedScreen = new PausedImage(this.width);
+			pausedScreen.y = height/2 - pausedScreen.height/2;
+			addChild(pausedScreen);
+			pauseGame(true);
 		}		
-		
+
 		//----------------------------------------------------------------------
 		//
 		//  Handler methods
@@ -129,7 +128,6 @@ package
 			cpu.Run();
 			cpu.Run();
 			videoOutput.render(); 
-			trace("wh:" + width + ":" + height);
 		}
 		
 		/**
@@ -141,22 +139,41 @@ package
 		{	
 			if ( e.keyCode == Keyboard.ESCAPE) 
 			{
-				if ( !paused )
+				if (!pausedState)
 				{
-					refreshTimer.stop();
-					videoClassic.alpha = .8;
+					pauseGame(true);
 				} else 
 				{
-					refreshTimer.start();
-					videoClassic.alpha = 1;
+					pauseGame(false);
 				}
-				paused = !paused;
 			}
 			
 			if ( e.keyCode == R_KEY )
 			{
 				cpu.Reset();	
 			}
-		}		
+		}
+		
+		/**
+		 * Pauses/Unpauses the game
+		 *  
+		 **/
+		private function pauseGame(pause:Boolean):void
+		{
+			if (pause)
+			{
+				refreshTimer.stop();
+				videoClassic.alpha = .6;
+				pausedScreen.alpha = 1;
+				pausedState = true;
+			}
+			else
+			{
+				refreshTimer.start();
+				videoClassic.alpha = 1;
+				pausedScreen.alpha = 0;
+				pausedState = false;
+			}
+		}
 	}
 }

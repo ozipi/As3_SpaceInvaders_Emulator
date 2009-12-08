@@ -25,25 +25,29 @@
 //	THE SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////
 
-package com.ozipi.screen
+package com.ozipi.screen.skins
 {
-	import com.ozipi.cpu.IVram;
-	import com.ozipi.screen.skins.ISkin;
+	import flash.display.Bitmap;
+	import flash.display.BitmapData;
 
 	/**
-	 * Handles all video operations  
+	 * A classic space invaders skin (black background and one color pixels) 
 	 * 
 	 */
-	public class SpaceInvadersVideo
+	public class ClassicSkin extends Bitmap implements ISkin
 	{
 		//----------------------------------------------------------------------
 		//
 		//  Attributes
 		//
 		//----------------------------------------------------------------------
-		private static const VIDEO_RAM_BASE:int = 0x2400;
-		private var spaceInvadersCpu:IVram;
-		private var spaceSkin:ISkin; 
+		private var btData:BitmapData;
+		private var _bitmapHeight:int = 256;
+		private var _bitmapWidth:int = 224;
+		private var fillColor:int = 0;
+		private var pixelActiveColor:int = 0x93DCFF;
+		private var pixelInactiveColor:int = 0x00;
+		private var transparentBitmap:Boolean = false;
 		
 		//----------------------------------------------------------------------
 		//
@@ -51,75 +55,48 @@ package com.ozipi.screen
 		//
 		//----------------------------------------------------------------------
 		/**
-		 * Receives the cpu reference and a skin to send the pixels 
-		 * @param cpu
-		 * @param Skin
+		 * Receives the color for the screen and adds the bitmapData to a new bitmap 
+		 * @param mainColor
 		 * 
 		 */
-		public function SpaceInvadersVideo(cpuReference:IVram, Skin:ISkin)
+		public function ClassicSkin(mainColor:int=0xFFFFFF)
 		{
-			super();
-			spaceSkin = Skin;
-			spaceInvadersCpu = cpuReference;
+			btData = new BitmapData(_bitmapWidth,_bitmapHeight,transparentBitmap,fillColor);
+			super(btData);
+			pixelActiveColor = mainColor;
 		}
 
 		//----------------------------------------------------------------------
 		//
-		//  Helper Methods
+		//  Pixel Methods
 		//
 		//----------------------------------------------------------------------
 		/**
-		 * Cleans the screen and get the new video memory state 
+		 * Will set the corresponding pixels inside the bitmapData 
+		 * @param x
+		 * @param y
+		 * @param pixelSet
 		 * 
 		 */
-		public function render():void
+		public function setPixel(x:int, y:int, pixelSet:Boolean):void
 		{
-			spaceSkin.cleanPixels();
-			getVideoBytes();
+			if (pixelSet)
+			{
+				btData.setPixel(x,y,pixelActiveColor);
+			}
+			else
+			{
+				btData.setPixel(x,y,pixelInactiveColor);
+			}
 		}
 		
 		/**
-		 * Gets the video ram memory bytes and send them to the corresponding skin 
+		 * Clean the pixels from the bitmapData 
 		 * 
 		 */
-		private function getVideoBytes():void
+		public function cleanPixels():void
 		{
-			var px:int = 0;
-			var nPx:int = 0;
-			var nPy:int = 0;
-			var videoBytePosition:int = 0;
-			var videoBytevalue:int = 0;
-			var pxBytesPerRow:int = 256/8;
-			var pixelActive:Boolean = false;
-			var rectHeight:int = 224;
-			
-			videoBytePosition = VIDEO_RAM_BASE;
-			for (var py:int=0;py<rectHeight;py++)
-			{
-				px = 0;
-				for (var i:int=0;i<pxBytesPerRow;i++)
-				{
-					videoBytevalue = spaceInvadersCpu.memory[videoBytePosition];
-					videoBytePosition += 1;
-					for (var bitCompare:int=0;bitCompare<8;bitCompare++)
-					{
-						//Reset the active pixel check
-						pixelActive = false;
-						//If the bit is set activate the pixel
-						if (videoBytevalue&1) pixelActive = true;
-						//Transform the new coordinates
-						nPx = py;
-						nPy = 255 - px;
-						//Set the pixel
-						//if (pixelActive)
-						spaceSkin.setPixel(nPx,nPy,pixelActive);
-						//Shift right the videoValue
-						videoBytevalue = videoBytevalue >> 1;
-						//Increment px
-						px++;
-					}
-				}
-			}
+			btData.fillRect(btData.rect, 0);
 		}
 	}
 }

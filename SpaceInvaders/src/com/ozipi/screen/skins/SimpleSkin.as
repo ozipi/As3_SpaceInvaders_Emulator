@@ -25,101 +25,79 @@
 //	THE SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////
 
-package com.ozipi.screen
+package com.ozipi.screen.skins
 {
-	import com.ozipi.cpu.IVram;
-	import com.ozipi.screen.skins.ISkin;
-
-	/**
-	 * Handles all video operations  
-	 * 
-	 */
-	public class SpaceInvadersVideo
+	import flash.display.Sprite;
+	
+	public class SimpleSkin extends Sprite implements ISkin
 	{
 		//----------------------------------------------------------------------
 		//
 		//  Attributes
 		//
 		//----------------------------------------------------------------------
-		private static const VIDEO_RAM_BASE:int = 0x2400;
-		private var spaceInvadersCpu:IVram;
-		private var spaceSkin:ISkin; 
+		protected var pixels:Sprite;
+		protected var pixelColor:int = 0xff0000;
+		protected var pixelMult:int = 2;
+		protected var baseWidth:int = 224;
+		protected var baseHeight:int = 256;
 		
 		//----------------------------------------------------------------------
 		//
 		//  Constructor
 		//
 		//----------------------------------------------------------------------
-		/**
-		 * Receives the cpu reference and a skin to send the pixels 
-		 * @param cpu
-		 * @param Skin
-		 * 
-		 */
-		public function SpaceInvadersVideo(cpuReference:IVram, Skin:ISkin)
+		public function SimpleSkin()
 		{
 			super();
-			spaceSkin = Skin;
-			spaceInvadersCpu = cpuReference;
+			setInitialProperties();
 		}
-
+		
 		//----------------------------------------------------------------------
 		//
 		//  Helper Methods
 		//
 		//----------------------------------------------------------------------
 		/**
-		 * Cleans the screen and get the new video memory state 
-		 * 
-		 */
-		public function render():void
+		 * Adds the pixels sprite sets the correct height & width to the screen
+		 *  
+		 **/
+		protected function setInitialProperties():void
 		{
-			spaceSkin.cleanPixels();
-			getVideoBytes();
+			pixels = new Sprite();
+			this.addChild(pixels);
 		}
 		
 		/**
-		 * Gets the video ram memory bytes and send them to the corresponding skin 
+		 * Function that set the active pixels on the pixels sprite 
+		 * @param x
+		 * @param y
+		 * @param pixelSet
 		 * 
 		 */
-		private function getVideoBytes():void
+		public function setPixel(x:int, y:int, pixelSet:Boolean):void
 		{
-			var px:int = 0;
-			var nPx:int = 0;
-			var nPy:int = 0;
-			var videoBytePosition:int = 0;
-			var videoBytevalue:int = 0;
-			var pxBytesPerRow:int = 256/8;
-			var pixelActive:Boolean = false;
-			var rectHeight:int = 224;
+			if (!pixelSet)
+				return;
+
+			pixelColor = pixelColor;
+			pixels.graphics.beginFill(pixelColor);
+			pixels.graphics.drawRect(x*pixelMult,y*pixelMult,pixelMult,pixelMult);
+			pixels.graphics.endFill();
 			
-			videoBytePosition = VIDEO_RAM_BASE;
-			for (var py:int=0;py<rectHeight;py++)
-			{
-				px = 0;
-				for (var i:int=0;i<pxBytesPerRow;i++)
-				{
-					videoBytevalue = spaceInvadersCpu.memory[videoBytePosition];
-					videoBytePosition += 1;
-					for (var bitCompare:int=0;bitCompare<8;bitCompare++)
-					{
-						//Reset the active pixel check
-						pixelActive = false;
-						//If the bit is set activate the pixel
-						if (videoBytevalue&1) pixelActive = true;
-						//Transform the new coordinates
-						nPx = py;
-						nPy = 255 - px;
-						//Set the pixel
-						//if (pixelActive)
-						spaceSkin.setPixel(nPx,nPy,pixelActive);
-						//Shift right the videoValue
-						videoBytevalue = videoBytevalue >> 1;
-						//Increment px
-						px++;
-					}
-				}
-			}
+			//Examples of another draw methods 
+			//pixels.graphics.drawCircle(x*2,y*2,.5);
+			//pixels.graphics.drawCircle(x*3,y*3,1.5);
+			//pixels.graphics.drawRoundRect(x*2,y*2,2,2,1);
+		}
+		
+		/**
+		 * Clean the pixels sprite 
+		 * 
+		 */
+		public function cleanPixels():void
+		{
+			pixels.graphics.clear();
 		}
 	}
 }

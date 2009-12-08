@@ -25,101 +25,45 @@
 //	THE SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////
 
-package com.ozipi.screen
+package com.ozipi.screen.skins
 {
-	import com.ozipi.cpu.IVram;
-	import com.ozipi.screen.skins.ISkin;
+	import flash.display.Bitmap;
+	import flash.display.Sprite;
 
-	/**
-	 * Handles all video operations  
-	 * 
-	 */
-	public class SpaceInvadersVideo
+	public class PaperSkin extends SimpleSkin implements ISkin
 	{
 		//----------------------------------------------------------------------
 		//
 		//  Attributes
 		//
 		//----------------------------------------------------------------------
-		private static const VIDEO_RAM_BASE:int = 0x2400;
-		private var spaceInvadersCpu:IVram;
-		private var spaceSkin:ISkin; 
+		[Embed(source='library/linepaper.jpg')]
+		private var paperClass:Class;
+		private var paperBitmap:Bitmap = new paperClass();
 		
 		//----------------------------------------------------------------------
 		//
 		//  Constructor
 		//
 		//----------------------------------------------------------------------
-		/**
-		 * Receives the cpu reference and a skin to send the pixels 
-		 * @param cpu
-		 * @param Skin
-		 * 
-		 */
-		public function SpaceInvadersVideo(cpuReference:IVram, Skin:ISkin)
+		public function PaperSkin()
 		{
 			super();
-			spaceSkin = Skin;
-			spaceInvadersCpu = cpuReference;
 		}
-
+				
 		//----------------------------------------------------------------------
 		//
-		//  Helper Methods
+		//  Overridden methods
 		//
 		//----------------------------------------------------------------------
-		/**
-		 * Cleans the screen and get the new video memory state 
-		 * 
-		 */
-		public function render():void
+		override protected function setInitialProperties():void
 		{
-			spaceSkin.cleanPixels();
-			getVideoBytes();
-		}
-		
-		/**
-		 * Gets the video ram memory bytes and send them to the corresponding skin 
-		 * 
-		 */
-		private function getVideoBytes():void
-		{
-			var px:int = 0;
-			var nPx:int = 0;
-			var nPy:int = 0;
-			var videoBytePosition:int = 0;
-			var videoBytevalue:int = 0;
-			var pxBytesPerRow:int = 256/8;
-			var pixelActive:Boolean = false;
-			var rectHeight:int = 224;
-			
-			videoBytePosition = VIDEO_RAM_BASE;
-			for (var py:int=0;py<rectHeight;py++)
-			{
-				px = 0;
-				for (var i:int=0;i<pxBytesPerRow;i++)
-				{
-					videoBytevalue = spaceInvadersCpu.memory[videoBytePosition];
-					videoBytePosition += 1;
-					for (var bitCompare:int=0;bitCompare<8;bitCompare++)
-					{
-						//Reset the active pixel check
-						pixelActive = false;
-						//If the bit is set activate the pixel
-						if (videoBytevalue&1) pixelActive = true;
-						//Transform the new coordinates
-						nPx = py;
-						nPy = 255 - px;
-						//Set the pixel
-						//if (pixelActive)
-						spaceSkin.setPixel(nPx,nPy,pixelActive);
-						//Shift right the videoValue
-						videoBytevalue = videoBytevalue >> 1;
-						//Increment px
-						px++;
-					}
-				}
-			}
+			pixels = new Sprite();
+			pixelColor = 0x000000;
+			paperBitmap.height = baseHeight * pixelMult; 
+			paperBitmap.width = baseWidth * pixelMult;
+			this.addChild(paperBitmap);
+			this.addChild(pixels);
 		}
 	}
 }
